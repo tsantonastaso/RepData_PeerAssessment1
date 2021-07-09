@@ -70,7 +70,7 @@ gpd$day <- weekdays(gpd$date)
 gpd$Date <- paste(gpd$day, gpd$date, sep = ".")
 
 #open png
-png('plot1.png')
+#png('plot1.png')
 #graph barplot: indicate y-axis data, x-axis data
 par(mar = c(10, 6, 1, 1))
 barplot(height = gpd$summedsteps, names = gpd$Date, 
@@ -84,27 +84,15 @@ barplot(height = gpd$summedsteps, names = gpd$Date,
         ylab = "Number of Steps",
         #title of chart
         main = "Number of Steps per Day")
-#turn off png        
-dev.off()
 ```
 
-```
-## png 
-##   2
-```
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
 ```r
+#turn off png        
+#dev.off()
 #resent default device
-getOption("device")
-```
-
-```
-## function (width = 7, height = 7, ...) 
-## {
-##     grDevices::pdf(NULL, width, height, ...)
-## }
-## <bytecode: 0x000000001358afd0>
-## <environment: namespace:knitr>
+#getOption("device")
 ```
 
 
@@ -141,7 +129,7 @@ gpd1$day <- weekdays(gpd1$date)
 gpd1$Date <- paste(gpd1$day, gpd1$date, sep = ".")
 
 #open png
-png('plot2.png')
+#png('plot2.png')
 
 # I don't care for the grey background so I go for the classic theme.
 # plot line graph       
@@ -160,28 +148,15 @@ ggplot()  + theme_classic()+ geom_line(aes(y = meansteps, x = Date, group = 1),
         axis.text.y = element_text(vjust = 0.5, hjust = 0.5, size = 6)) +
         #give x and y axes titles
         xlab("Date") + ylab("Five-Minute Step Average")
-
-#turn off png        
-dev.off()
 ```
 
-```
-## png 
-##   2
-```
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 ```r
+#turn off png        
+#dev.off()
 #resent default device
-getOption("device")
-```
-
-```
-## function (width = 7, height = 7, ...) 
-## {
-##     grDevices::pdf(NULL, width, height, ...)
-## }
-## <bytecode: 0x000000001358afd0>
-## <environment: namespace:knitr>
+#getOption("device")
 ```
 
 ####The 5-minute interval that, on average, contains the maximum number of steps
@@ -255,7 +230,6 @@ data$steps <- with(data, ave(steps, date, FUN = function(x) replace(x, is.na(x),
 ```
 
 
-## Are there differences in activity patterns between weekdays and weekends?
 
 
 ```r
@@ -268,7 +242,7 @@ newdf$day <- weekdays(newdf$date)
 newdf$Date <- paste(newdf$day, newdf$date, sep = ".")
 
 #open png
-png('plot3.png')
+#png('plot3.png')
 #Set up graph area
 par(mar = c(6, 6, 1, 1))
 #graph barplot: indicate y-axis data, x-axis data
@@ -285,30 +259,79 @@ barplot(height = newdf$summedsteps, names = newdf$date,
         mtext(side = 2, text = "Number of Steps", line = 4)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 ```
 ## numeric(0)
 ```
 
 ```r
 #turn off png        
-dev.off()
+#dev.off()
+#resent default device
+#getOption("device")
 ```
 
-```
-## png 
-##   2
-```
+Comparing this histogram with the earlier one, we can see data are filled in, 
+but the averages don't noticably change.
+
+What are the new values for central tendency?
 
 ```r
-#resent default device
-getOption("device")
+mn2 <- round(mean(gpd$summedsteps, na.rm = TRUE), 2)
+md2 <- median(gpd$summedsteps, na.rm = TRUE)
+str6 <- "The mean number of steps taken each day is "
+str7 <- ", and the median number of steps taken each day is "
+str8 <- "."
+print(paste(str6, mn2, str7, md2, str8))
 ```
 
 ```
-## function (width = 7, height = 7, ...) 
-## {
-##     grDevices::pdf(NULL, width, height, ...)
-## }
-## <bytecode: 0x000000001358afd0>
-## <environment: namespace:knitr>
+## [1] "The mean number of steps taken each day is  10766.19 , and the median number of steps taken each day is  10765 ."
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+
+```r
+#Remove the missing values
+dataO <- na.omit(data)
+#Turn the weekdays into factors
+wdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+dataO$d <- factor((weekdays(dataO$date) %in% wdays), levels = c(FALSE, TRUE), 
+        labels = c('weekend', 'weekday'))
+#subset the dataframe into 2 by factor
+dataweekends <- dataO[dataO$d == "weekend",]
+dataweekdays <- dataO[dataO$d == "weekday",]
+#Group subsets by time interval and take mean number of steps for each time interval
+gdataweekends <- dataweekends %>% group_by(interval) %>% summarize(meansteps = mean(steps))
+gdataweekdays <- dataweekdays %>% group_by(interval) %>% summarize(meansteps = mean(steps))
+#Set the range of the y-axis so both panels are the same
+rng <- range(gdataweekends$meansteps, gdataweekdays$meansteps)
+#initiate the plot
+#png('plot4.png')
+par(mfrow = c(2,1), mar = c(4, 4, 2, 1))
+#Top panel - 'Weekends'
+plot(gdataweekends$interval, gdataweekends$meansteps, type = "l", pch = 20, 
+     col = "blue", ylim = rng,
+     main = "Average daily steps on \nweekends", cex.main = 0.75,
+     xlab = "", cex.axis = 0.5, cex.lab = 0.8,
+     ylab = "", las = 2,)
+#Bottom panel - 'Weekdays'
+plot(gdataweekdays$interval, gdataweekdays$meansteps, type = "l", pch = 20, 
+     col = "blue", ylim = rng,
+     main = "Average daily steps on \nweekdays", cex.main = 0.75,
+     xlab = "Interval", ylab = "", cex.axis = 0.5, cex.lab = 0.8,
+     las = 2)
+#Marginal text to be used for y axis label
+mtext("Number of Steps", side = 2, adj = 2.2, padj = -4, cex = 0.8)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
+```r
+#turn off png        
+#dev.off()
+#resent default device
+#getOption("device")
 ```
